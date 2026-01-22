@@ -14,7 +14,7 @@
 
 | Họ tên | Mã số sinh viên | Contact | Github |
 | :--- | :--- | :--- | :--- |
-| Nguyễn Thành Long | 3121410297 | ngthanhlong2003@gmail.com | https://github.com/rizzTreecko |
+| Tô Khổng Mỹ Hằng | 3122410104 | myhang03112004@gmail.com | https://github.com/tkmh04 |
 | Nguyễn Thành Long | 3121410297 | ngthanhlong2003@gmail.com | https://github.com/rizzTreecko |
 | Nguyễn Thành Long | 3121410297 | ngthanhlong2003@gmail.com | https://github.com/rizzTreecko |
 | Nguyễn Thành Long | 3121410297 | ngthanhlong2003@gmail.com | https://github.com/rizzTreecko |
