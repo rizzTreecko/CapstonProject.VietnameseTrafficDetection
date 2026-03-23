@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nhận diện Biển báo Giao thông Việt Nam</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <img
+        src="https://fit.sgu.edu.vn/site/wp-content/uploads/2019/01/logover3-1.png"
+        alt="SGU Logo"
+        class="header-logo"
+      />
+      <div class="header-text">
+        <h1 class="header-title">Nhận diện Biển báo Giao thông Việt Nam</h1>
+        <p class="header-subtitle">
+          Trường Đại học Sài Gòn &mdash; Đồ án Tốt nghiệp
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="main">
+    <!-- Input section -->
+    <section class="card input-section">
+      <h2 class="section-title">Nguồn đầu vào</h2>
+
+      <!-- Tab buttons -->
+      <div class="tab-bar" role="tablist">
+        <button
+          id="tab-upload"
+          class="tab-btn active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-upload"
+        >
+          📁 Tải ảnh lên
+        </button>
+        <button
+          id="tab-url"
+          class="tab-btn"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-url"
+        >
+          🔗 URL ảnh
+        </button>
+        <button
+          id="tab-webcam"
+          class="tab-btn"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-webcam"
+        >
+          📷 Webcam
+        </button>
+      </div>
+
+      <!-- Upload panel -->
+      <div id="panel-upload" class="tab-panel active" role="tabpanel">
+        <label class="drop-zone" id="drop-zone" for="file-input">
+          <span class="drop-zone-icon">🖼️</span>
+          <span class="drop-zone-text">
+            Kéo và thả ảnh vào đây hoặc <u>nhấn để chọn</u>
+          </span>
+          <span class="drop-zone-hint">Hỗ trợ: JPG, PNG, WEBP (tối đa 10 MB)</span>
+          <input
+            type="file"
+            id="file-input"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+          />
+        </label>
+      </div>
+
+      <!-- URL panel -->
+      <div id="panel-url" class="tab-panel" role="tabpanel" hidden>
+        <div class="url-row">
+          <input
+            type="url"
+            id="url-input"
+            class="text-input"
+            placeholder="https://example.com/image.jpg"
+          />
+          <button id="url-load-btn" class="btn btn-secondary">Tải ảnh</button>
+        </div>
+      </div>
+
+      <!-- Webcam panel -->
+      <div id="panel-webcam" class="tab-panel" role="tabpanel" hidden>
+        <div class="webcam-container">
+          <video id="webcam-video" autoplay playsinline muted></video>
+          <div class="webcam-controls">
+            <button id="start-webcam-btn" class="btn btn-secondary">
+              ▶ Bật Camera
+            </button>
+            <button id="capture-btn" class="btn btn-primary" disabled>
+              📸 Chụp ảnh
+            </button>
+            <button id="stop-webcam-btn" class="btn btn-danger" disabled>
+              ■ Tắt Camera
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detection area -->
+    <section class="card detection-section">
+      <div class="detection-header">
+        <h2 class="section-title">Kết quả phát hiện</h2>
+        <div class="detection-controls">
+          <label class="toggle-label">
+            <input type="checkbox" id="show-labels-toggle" checked />
+            Hiển thị nhãn
+          </label>
+          <label class="toggle-label">
+            <input type="checkbox" id="show-confidence-toggle" checked />
+            Hiển thị độ tin cậy
+          </label>
+          <label class="slider-label">
+            Ngưỡng:
+            <input
+              type="range"
+              id="confidence-threshold"
+              min="0"
+              max="1"
+              step="0.05"
+              value="0.25"
+            />
+            <span id="threshold-value">0.25</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Canvas wrapper -->
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <canvas id="result-canvas"></canvas>
+        <div class="canvas-placeholder" id="canvas-placeholder">
+          <span>🚦</span>
+          <p>Hình ảnh kết quả sẽ hiển thị tại đây</p>
+        </div>
+      </div>
+
+      <!-- Detect button -->
+      <div class="detect-row">
+        <button id="detect-btn" class="btn btn-primary btn-lg" disabled>
+          🔍 Nhận diện
+        </button>
+        <button id="clear-btn" class="btn btn-outline" disabled>
+          🗑️ Xóa
+        </button>
+        <span id="processing-indicator" class="processing-indicator hidden">
+          <span class="spinner"></span> Đang xử lý…
+        </span>
+      </div>
+    </section>
+
+    <!-- Results table -->
+    <section class="card results-section" id="results-section" hidden>
+      <h2 class="section-title">Danh sách phát hiện</h2>
+      <div class="results-summary" id="results-summary"></div>
+      <div class="table-wrapper">
+        <table class="results-table" id="results-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Biển báo</th>
+              <th>Phân loại</th>
+              <th>Độ tin cậy</th>
+              <th>Vị trí (x, y, w, h)</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- API settings -->
+    <section class="card api-section">
+      <details>
+        <summary class="api-summary">⚙️ Cấu hình API</summary>
+        <div class="api-body">
+          <p class="api-hint">
+            Nhập URL của máy chủ YOLO backend để kết nối thực tế.
+            Để trống sẽ sử dụng chế độ demo (dữ liệu giả lập).
+          </p>
+          <div class="url-row">
+            <input
+              type="url"
+              id="api-url-input"
+              class="text-input"
+              placeholder="http://localhost:8000/detect"
+            />
+            <button id="api-save-btn" class="btn btn-secondary">
+              Lưu
+            </button>
+            <button id="api-test-btn" class="btn btn-outline">
+              Kiểm tra kết nối
+            </button>
+          </div>
+          <p id="api-status" class="api-status"></p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>
+      © 2025 Trường Đại học Sài Gòn &mdash; Đồ án Tốt nghiệp &mdash;
+      Nhận diện Biển báo Giao thông Việt Nam sử dụng YOLOv8/v11
+    </p>
+  </footer>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <script src="js/signs.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
